@@ -1,0 +1,26 @@
+name: Build Windows CLI
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Add Git patch utility to PATH
+        shell: pwsh
+        run: Add-Content $env:GITHUB_PATH 'C:\Program Files\Git\usr\bin'
+      - run: npm run package:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stu-windows-x64
+          path: dist/stu.exe
