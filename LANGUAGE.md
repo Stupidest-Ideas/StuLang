@@ -1,6 +1,6 @@
-# StuLang 1.0.0 language reference
+# StuLang 26.40.0 language reference
 
-Examples below use the format **feature = code**. All `stu` blocks demonstrate syntax accepted by the 1.0.0 lexer and parser. The [README](../README.md) distinguishes parser support from browser-preview support.
+Examples below use the format **feature = code**. All `stu` blocks demonstrate syntax accepted by the 26.40.0 lexer and parser. The [README](../README.md) distinguishes parser support from browser-preview support.
 
 StuLang source files use the `.stu` extension. The parser accepts smart double quotes (`“…”`) and single quotes in addition to normal double quotes.
 
@@ -545,3 +545,278 @@ View; FSA; Home: (
 - **Component appearance:** `Card`, `Panel`, `Bar`, `Navbar`, `Badge`, `Chip`, `Banner`, `Tooltip`, `Dialog`, `Container`.
 
 Hover styles restore the original appearance on pointer exit or focus loss. Motion effects use independent CSS transforms so centered anchors stay centered. Reduced-motion preferences disable animations and hover movement. `Slide-Up` enters from below, `Slide-Down` from above, `Slide-Left` from the right, and `Slide-Right` from the left. `Fade-Out` ends invisible; `Bounce`, `Pulse`, and `Spin` repeat. `Dialog` is a visual preset, not a modal or focus trap. `Full-Height` requires a parent with a defined height.
+
+## Object API (26.40.0)
+
+The following properties and commands execute in compiled HTML, the playground,
+and the VS Code preview. Define target objects before executing commands against
+them. Bare object IDs, quoted IDs, and object references returned by getters are
+accepted. A declared variable in an argument is evaluated; otherwise a bare name
+such as `Red`, `Rounded`, or `PlayButton` is treated as a symbolic string.
+Names remain case-sensitive; CSS keyword values such as `Center` are normalized.
+
+### Additional properties
+
+Place these assignments inside an object. They also work as setter/getter calls,
+such as `Width(PlayButton; 200px)` and `Width(PlayButton)`.
+
+```stu
+!Alignment = Center:
+!Text-Align = Center:
+!Vertical-Align = Middle:
+!Line-Height = 1.5:
+!Letter-Spacing = 2px:
+!Word-Spacing = 4px:
+!Text-Indent = 10px:
+!Text-Overflow = Ellipsis:
+!Text-Wrap = True:
+!Text-Shadow = "0px 2px 4px black":
+!Font-Style = Italic:
+!Min-Width = 100px:
+!Max-Width = 500px:
+!Min-Height = 50px:
+!Max-Height = 300px:
+!Aspect-Ratio = "16/9":
+!Z-Index = 10:
+!Border-Color = Red:
+!Border-Width = 2px:
+!Border-Style = Dashed:
+!Padding-Top = 10px:
+!Padding-Bottom = 10px:
+!Padding-Left = 10px:
+!Padding-Right = 10px:
+!Margin-Top = 10px:
+!Margin-Bottom = 10px:
+!Margin-Left = 10px:
+!Margin-Right = 10px:
+!Flex-Direction = Row:
+!Flex-Wrap = Wrap:
+!Justify-Content = Center:
+!Align-Items = Center:
+!Align-Self = Start:
+!Flex-Grow = 1:
+!Flex-Shrink = 0:
+!Grid-Columns = 3:
+!Grid-Rows = 3:
+!Column-Gap = 10px:
+!Row-Gap = 10px:
+!Pointer-Events = None:
+!Visibility = Hidden:
+```
+
+`Alignment` and `Text-Align` align text, including text inside flex containers;
+they do not move the object itself. `Vertical-Align` uses native alignment on
+inputs and table cells and a column flex layout for other containers. Use
+`!Display = Flex:` for flex layout. Positive integer grid counts enable grid and
+create equally sized tracks; quoted CSS track definitions are also accepted.
+`Text-Wrap = True` uses normal wrapping; `False` uses `nowrap`. Ellipsis needs a
+constrained width, `!Overflow = Hidden:`, and usually `!Text-Wrap = False:`.
+CSS sizing, flex, and grid rules still apply; properties can override each other.
+
+### Property modification and retrieval (1–20)
+
+```stu
+Text(PlayButton; "Start Game"):
+Color(PlayButton; Red):
+Background(PlayButton; Blue):
+Width(PlayButton; 200px):
+Height(PlayButton; 100px):
+Radius(PlayButton; 15px):
+Opacity(PlayButton; 0.5):
+Font-Size(PlayButton; 24px):
+Text-Align(PlayButton; Center):
+Z-Index(PlayButton; 10):
+Var text = Text(PlayButton):
+Var width = Width(PlayButton):
+Var height = Height(PlayButton):
+Var color = Color(PlayButton):
+Var x = X(PlayButton):
+Var y = Y(PlayButton):
+Var value = User-Text(Input):
+Var checked = Checked(CheckBox1):
+Var visible = Is-Visible(PlayButton):
+Var type = Type(PlayButton):
+```
+
+Style getters return CSS strings; `X`/`Y` return viewport pixel coordinates.
+`Checked` and `Is-Visible` return booleans. Visibility queries inspect the object's
+hidden flag, display, and visibility, not occlusion or hidden ancestors.
+Setters replace that property's previous binding.
+
+### Visibility and state (21–30)
+
+```stu
+Show(PlayButton):
+Hide(PlayButton):
+Toggle(PlayButton):
+Enable(PlayButton):
+Disable(PlayButton):
+Focus(PlayButton):
+Unfocus(PlayButton):
+Lock(PlayButton):
+Unlock(PlayButton):
+Reset(PlayButton):
+```
+
+Show/hide/toggle control the HTML hidden flag. Explicit `Visibility = Hidden` or
+`Display = None` must also be cleared to reveal an object. Enable/disable use the
+native disabled state (for controls). Lock sets read-only and inert; unlock clears
+them. Reset restores the initial appearance, text, value, checked and enabled
+state and removes property bindings; it does not recreate deleted children.
+
+### Positioning (31–40)
+
+```stu
+Move(PlayButton; MS):
+Move(PlayButton; 50%; 30%):
+Move-X(PlayButton; 100px):
+Move-Y(PlayButton; 50px):
+Offset(PlayButton; 10px; 20px):
+Center(PlayButton):
+Move-To(PlayButton; OtherObject):
+Move-Above(PlayButton; OtherObject):
+Move-Below(PlayButton; OtherObject):
+Swap-Position(PlayButton; OtherObject):
+```
+
+Moves use absolute positioning within the parent. Anchor moves use the same 25
+anchors as headers. Coordinate moves retain any existing anchor transform;
+`Offset` sets an independent translation. Relative-object moves align visible
+bounding rectangles and account for rotation/scale. Above/below touch the target
+edge; swap exchanges visible top-left positions. Numeric lengths use pixels.
+
+### Dynamic objects and children (41–50)
+
+```stu
+Delete(PlayButton):
+Clone(PlayButton; NewButton):
+Rename(PlayButton; StartButton):
+Replace(PlayButton; NewObject):
+Move-Into(PlayButton; Container1):
+Add-Child(Container1; PlayButton):
+Remove-Child(Container1; PlayButton):
+Clear-Children(Container1):
+Var count = Child-Count(Container1):
+Var child = Get-Child(Container1; 0):
+```
+
+These are independent examples, not a sequence to run on one deleted object.
+Clone makes a DOM snapshot with a new ID; descendant IDs become
+`NewButton-OriginalChildID`. It copies appearance/content, not event handlers or
+reactive bindings; attach those to the new ID explicitly. Rename changes registry
+lookup, so subsequent calls use the new ID. Replace moves an existing unrelated
+object into the old object's place and deletes the old subtree. Remove-Child
+detaches without deleting, so Add-Child can reattach it. Delete and Clear-Children
+unregister removed subtrees. Child queries count immediate StuLang objects, not
+internal text spans; Get-Child is zero-based and returns null out of range.
+
+### Style management (51–60)
+
+```stu
+Add-Style(PlayButton; Rounded):
+Remove-Style(PlayButton; Rounded):
+Toggle-Style(PlayButton; Dark):
+Has-Style(PlayButton; Primary):
+Clear-Styles(PlayButton):
+Set-Styles(PlayButton; Primary; Pill; Bold):
+Copy-Style(PlayButton; OtherButton):
+Reset-Style(PlayButton):
+Add-Hover-Style(PlayButton; Glow):
+Add-Focus-Style(PlayButton; Outline):
+```
+
+Styles use the built-in preset registry. Set-Styles replaces the ordered stack;
+Copy-Style copies the second object's inline appearance onto the first.
+Reset-Style restores initial inline styles and clears CSS property bindings.
+Explicit live property bindings take precedence over added presets. Dynamic
+styles affect appearance; use object types/headers for structural behaviors such
+as dropdowns and specialized inputs. Hover/focus styles restore the previous
+appearance when the pointer/focus leaves.
+
+### Animation (61–70)
+
+```stu
+Animate(PlayButton; Fade-In; 500ms):
+Animate(PlayButton; Fade-Out; 500ms):
+Animate(PlayButton; Bounce; 1s):
+Animate(PlayButton; Shake; 300ms):
+Rotate(PlayButton; 90deg):
+Scale(PlayButton; 1.5):
+Stop-Animation(PlayButton):
+Pause-Animation(PlayButton):
+Resume-Animation(PlayButton):
+Animate-To(PlayButton; XY(50%; 50%); 1s):
+```
+
+Animate uses the named animation preset and supplied duration; repeating presets
+remain repeating. Animate-To uses the browser animation API to tween left/top to
+the destination. Pause/resume/stop control both forms. Rotate and scale are
+independent transforms. Reduced-motion preferences disable movement animations.
+
+### External events (71–80)
+
+```stu
+On-Click(PlayButton) > Text(PlayButton; "Clicked"): <
+On-Hover(PlayButton) > Color(PlayButton; Blue): <
+On-Unhover(PlayButton) > Color(PlayButton; Red): <
+On-Double-Click(PlayButton) > Text(PlayButton; "Double click"): <
+On-Change(Input) > Text(PlayButton; User-Text(Input)): <
+On-Show(PlayButton) > Text(PlayButton; "Shown"): <
+On-Hide(PlayButton) > Text(PlayButton; "Hidden"): <
+On-Create(PlayButton) > Text(PlayButton; "Ready"): <
+On-Resize(PlayButton) > Text(PlayButton; "Resized"): <
+On-Animation-End(PlayButton) > Text(PlayButton; "Finished"): <
+```
+
+Register events after the target exists. Create runs after initial properties and
+bindings are initialized. Resize uses ResizeObserver, including its first size
+notification. Show/hide notifications come from the API or visibility bindings,
+not arbitrary DOM edits. Animation-end runs for naturally completed animations;
+infinite or cancelled animations do not finish. Handlers refresh bindings and
+report errors in the preview's error area.
+
+### Reactive bindings (81–90)
+
+```stu
+Bind(PlayButton; Text; score):
+Bind(PlayButton; Color; currentColor):
+Bind(PlayButton; Width; currentWidth):
+Unbind(PlayButton; Text):
+Bind-Visibility(PlayButton; isVisible):
+Bind-Enabled(PlayButton; isReady):
+Bind-Value(Input; username):
+Bind-Value(Slider1; volume):
+Bind-Checked(CheckBox1; enabled):
+Bind-Value(Progress1; progress):
+```
+
+Declare each bound variable first. Bind is one-way. Value/checked bindings also
+listen for input/change events and write into the variable; sliders produce
+numbers. Progress has no user input, so its binding is effectively one-way; set
+`!Max = 100:` when using percentages. Bindings refresh after StuLang events and
+before object calls. Arbitrary asynchronous JavaScript mutations do not trigger
+an automatic refresh. Unbind accepts the property name (`Visible`, `Enabled`,
+`Value`, or `Checked` for specialized bindings).
+
+### Utilities and groups (91–100)
+
+```stu
+Exists(PlayButton):
+Get-Object("PlayButton"):
+Get-All(Button):
+Get-By-Style(Primary):
+Group(MenuButtons; Button1; Button2):
+Hide(MenuButtons):
+Show(MenuButtons):
+Add-Style(MenuButtons; Rounded):
+Overlaps(PlayButton; OtherObject):
+Distance-To(PlayButton; OtherObject):
+```
+
+Get-Object returns an object reference or null. Get-All/Get-By-Style return arrays
+of references, also accepted as command targets. Group stores a named collection;
+commands apply to each member, and getters return results in member order.
+Overlaps compares visible bounding rectangles; touching edges are not overlap.
+Distance-To returns the Euclidean distance between rectangle centers in pixels.
+Unknown objects, duplicate IDs, incompatible presets, and malformed command
+argument counts report errors.
